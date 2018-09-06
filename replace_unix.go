@@ -4,6 +4,8 @@ package monkey
 
 import (
 	"syscall"
+
+	"golang.org/x/sys/unix"
 )
 
 // this function is super unsafe
@@ -13,13 +15,13 @@ func copyToLocation(location uintptr, data []byte) {
 	f := rawMemoryAccess(location, len(data))
 
 	page := rawMemoryAccess(pageStart(location), syscall.Getpagesize())
-	err := syscall.Mprotect(page, syscall.PROT_READ|syscall.PROT_WRITE|syscall.PROT_EXEC)
+	err := unix.Mprotect(page, unix.PROT_READ|unix.PROT_WRITE|unix.PROT_EXEC)
 	if err != nil {
 		panic(err)
 	}
 	copy(f, data[:])
 
-	err = syscall.Mprotect(page, syscall.PROT_READ|syscall.PROT_EXEC)
+	err = unix.Mprotect(page, unix.PROT_READ|unix.PROT_EXEC)
 	if err != nil {
 		panic(err)
 	}
